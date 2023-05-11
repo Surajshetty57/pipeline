@@ -1,31 +1,41 @@
-// pipeline {
-//     agent {
-//         docker { image 'node:18.16.0-alpine' }
-//     }
-//     stages {
-//         stage('Test') {
-//             steps {
-//                 sh 'node --version'
-//             }
-//         }
-//     }
-// }
 pipeline {
-    agent any
-    stages {
-        stage('Build') {
-            agent {
-                docker {
-                    image 'gradle:6.7-jdk11'
-                    // Run the container on the node specified at the
-                    // top-level of the Pipeline, in the same workspace,
-                    // rather than on a new node entirely:
-                    reuseNode true
-                }
-            }
-            steps {
-                sh 'gradle --version'
-            }
-        }
+  agent any
+
+  stages {
+
+    stage('Checkout Source') {
+      steps {
+        checkout scmGit(branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[credentialsId: 'git-credentials', url: 'https://github.com/Surajshetty57/pipeline']])
+      }
     }
+    stage('Build image') {
+      steps{
+        script {
+          dockerImage = docker.build dockerimagename
+        }
+      }
+    }
+//     stage('Pushing Image') {
+//       environment {
+//                registryCredential = 'dockerhub-credentials'
+//            }
+//       steps{
+//         script {
+//           docker.withRegistry( 'https://registry.hub.docker.com', registryCredential ) {
+//             dockerImage.push("latest")
+//           }
+//         }
+//       }
+//     }
+
+    stage('Deploying React.js container to Kubernetes') {
+      steps {
+        script {
+          kubernetesDeploy(configs: "deployment.yaml", "service.yaml")
+        }
+      }
+    }
+
+  }
+
 }
