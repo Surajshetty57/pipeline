@@ -8,13 +8,13 @@ pipeline {
         checkout scmGit(branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[credentialsId: 'git-credentials', url: 'https://github.com/Surajshetty57/pipeline']])
       }
     }
-    stage('Build image') {
-      steps{
-        script {
-          dockerImage = docker.build dockerimagename
-        }
-      }
-    }
+//     stage('Build image') {
+//       steps{
+//         script {
+//           dockerImage = docker.build dockerimagename
+//         }
+//       }
+//     }
 //     stage('Pushing Image') {
 //       environment {
 //                registryCredential = 'dockerhub-credentials'
